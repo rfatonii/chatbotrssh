@@ -29,6 +29,9 @@ client.on('message', async msg => {
     // 2. [FILTER PENTING] Biar Bot GAK ngebales Status orang
     if (msg.from === 'status@broadcast') return;
 
+    // 3. Filter biar bot ga respon pesan dari grup
+    if (msg.from.includes('@g.us')) return;
+
     // --- MULAI LOGIC ---
     const pesan = msg.body.toLowerCase();
 
