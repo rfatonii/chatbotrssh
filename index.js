@@ -1,7 +1,6 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 
-// Setup Client
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: { 
@@ -10,73 +9,68 @@ const client = new Client({
     }
 });
 
-// Event 1: Generate QR (PENTING: Jangan dihapus)
+// Generate QR (Konfigurasi WA)
 client.on('qr', (qr) => {
     console.log('Scan QR Code ini:');
     qrcode.generate(qr, { small: true });
 });
 
-// Event 2: Bot Sudah Siap
+// Log Kalo Bot Sudah Siap
 client.on('ready', () => {
-    console.log('✅ Bot RS SYAHID Siap Melayani!');
+    console.log('✅ Bot Ready...');
 });
 
-// Event 3: Logic Pesan Masuk
+// Logic Pesan Masuk
 client.on('message', async msg => {
-    // 1. Filter biar Bot GAK ngebales pesannya sendiri
-    if (msg.fromMe) return;
+    // FILTER
+    if (msg.fromMe) return; // pesan dari bot itu sendiri
+    if (msg.from === 'status@broadcast') return; // pesan dari status broadcast
+    if (msg.from.includes('@g.us')) return; // pesan dari grup
 
-    // 2. [FILTER PENTING] Biar Bot GAK ngebales Status orang
-    if (msg.from === 'status@broadcast') return;
+    // --- MULAI LOGIC BOT ---
+    const pesan = msg.body.toLowerCase(); // lowercase semua input user
 
-    // 3. Filter biar bot ga respon pesan dari grup
-    if (msg.from.includes('@g.us')) return;
-
-    // --- MULAI LOGIC ---
-    const pesan = msg.body.toLowerCase();
-
-    // --- BAGIAN A: PEMICU MENU (TRIGGER) ---
-    // Menu cuma keluar kalau user mengetik kata kunci ini:
-    if (pesan === 'menu' || pesan === 'halo' || pesan === 'p' || pesan === 'info') {
+    // Kalo User input '1'
+    if (pesan === '1') {
         msg.reply(`
-🏥 *SELAMAT DATANG DI RS SYAHID* 🏥
-_Layanan Pendaftaran Mandiri via WhatsApp_
+📝 Silahkan daftar melalui link berikut:
+https://daftaronline.rssyarifhidayatullah.com/
 
-Silakan pilih layanan di bawah ini:
-1. 📝 Daftar Poli Umum
-2. 🦷 Daftar Poli Gigi
-3. 🗓️ Cek Jadwal Dokter
-4. 🚑 Info Darurat
+Ketik *0* untuk kembali.
+            `);
+    }
 
-_Ketik angkanya saja. Contoh: 1_
+    // Kalo User input '2'
+    else if (pesan === '2') {
+        msg.reply(`
+📅 Silahkan cek Jadwal Dokter melalui link berikut:
+https://www.rssyarifhidayatullah.com/jadwal-dokter
+
+Ketik *0* untuk kembali.
+            `);
+    }
+
+    // Kalo User input '0' ataupun random input, bakal output in ini
+    else {
+        msg.reply(`
+Terima kasih telah menggunakan layanan Rumah Sakit UIN Syarif Hidayatullah Jakarta.
+
+No. Gawat Darurat:
+📞 _nomor_
+
+No. Call Center
+📞 _nomor_
+
+📍 Lokasi google maps:
+https://maps.app.goo.gl/xLQ5TYDorSzSsnoT8
+
+Silahkan pilih layanan yang Anda butuhkan:
+1️⃣ Daftar Online
+2️⃣ Jadwal Dokter atau Poli
+Ketik angka sesuai menu (Misal: 1)
         `);
     }
-
-    // --- BAGIAN B: RESPON PILIHAN ANGKA ---
-    else if (pesan === '1') {
-        const noAntrian = Math.floor(Math.random() * 50) + 1;
-        msg.reply(`✅ *PENDAFTARAN BERHASIL*\nPoli: *Umum*`);
-    }
-
-    else if (pesan === '2') {
-        const noAntrian = Math.floor(Math.random() * 20) + 1;
-        msg.reply(`✅ *PENDAFTARAN BERHASIL*\nPoli: *Gigi*`);
-    }
-
-    else if (pesan === '3') {
-        msg.reply(`🗓️ *JADWAL DOKTER*\nDr. Budi (Umum): 08.00 - 14.00\nDrg. Siti (Gigi): 09.00 - 15.00`);
-    }
-
-    else if (pesan === '4') {
-        msg.reply(`🚑 *DARURAT*\nHubungi Ambulans: 118`);
-    }
-
-    // --- BAGIAN C: RESPON DEFAULT (JIKA INPUT TIDAK DIKENAL) ---
-    // Kalau user ngetik curhat atau kata lain selain di atas
-    else {
-        msg.reply('Halo, dengan RS SYAHID di sini\nSilakan ketik _"menu"_ untuk memulai layanan.');
-    }
 });
 
-// Nyalakan Bot
+// Client Bot Activation
 client.initialize();
